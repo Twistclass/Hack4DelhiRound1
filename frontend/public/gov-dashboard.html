@@ -19,7 +19,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/togeojson/0.16.0/togeojson.min.js"></script>
 
   <style>
-    html,body { height:100%; margin:0; background:#000; color:#fff; font-family: "Trebuchet MS", Helvetica, sans-serif; }
+    @font-face { font-family: 'Karst Light'; src: url('../karst-light.otf') format('opentype'); font-weight: 300; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Karst ExtraBold'; src: url('../karst-extrabold.otf') format('opentype'); font-weight: 800; font-style: normal; font-display: swap; }
+    html,body { height:100%; margin:0; background:#000; color:#fff; font-family: 'Karst Light', "Trebuchet MS", Helvetica, sans-serif; }
+    #locationTitle, #aqiText { font-family: 'Karst ExtraBold','Karst Light',"Trebuchet MS",Helvetica,sans-serif; font-weight: 800; }
     #map { height:100vh; width:100vw; }
     .glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.06); color: #fff; }
     .spinner { border: 3px solid rgba(255,255,255,0.12); border-top: 3px solid rgba(255,255,255,0.95); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display:inline-block; }
@@ -69,7 +72,7 @@
 </head>
 <body>
   <!-- Back to Landing -->
-  <button onclick="window.location.href='/'" class="absolute top-6 left-6 z-[1400] px-4 py-2 rounded-full border border-white/30 hover:bg-white hover:text-black transition">
+  <button onclick="window.location.href='index.html'" class="absolute top-6 left-6 z-[1400] px-4 py-2 rounded-full border border-white/30 hover:bg-white hover:text-black transition">
     ← Back to Home
   </button>
 <style>
@@ -100,10 +103,146 @@
     #bigAQI {
         transition: color 0.5s ease;
     }
+        /* Neon glow amplification for the glow layer (uses currentColor) */
+.ward-glow path {
+  /* multiple drop-shadows create a bloom without rasterizing everything */
+  filter:
+    drop-shadow(0 0 8px currentColor)
+    drop-shadow(0 0 20px currentColor)
+    drop-shadow(0 0 18px rgba(255,255,255,0.18));
+  /* slightly blur the SVG path edge for a softer glow on some browsers */
+  /* (optional) - uncomment if desired */
+  /* stroke-linejoin: round; */
+}
+/* Glass search input */
+.neo-search-input {
+  background: rgba(20, 24, 28, 0.55);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+/* Keep glass even on focus */
+.neo-search-input:focus {
+  background: rgba(20, 24, 28, 0.6); /* NOT white */
+  border-color: rgba(255, 180, 90, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(255, 180, 90, 0.35),
+    0 0 18px rgba(255, 140, 26, 0.25);
+}
+
+/* Prevent Chrome autofill white */
+.neo-search-input:-webkit-autofill,
+.neo-search-input:-webkit-autofill:hover,
+.neo-search-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e5e7eb;
+  transition: background-color 9999s ease-in-out 0s;
+  box-shadow: 0 0 0px 1000px rgba(20, 24, 28, 0.6) inset;
+}
+
+/* Button styling */
+.neo-search-btn {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.neo-search-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Optional subtle hover glow */
+.neo-search-input:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+/* --- 1. Map Canvas Enhancements --- */
+/* Darken the base map slightly to make neon colors pop */
+.leaflet-tile-pane {
+    filter: contrast(1.1) brightness(0.8) saturation(0);
+}
+
+/* Vignette Effect: Darkens corners of the screen to focus on the map */
+#map::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    box-shadow: inset 0 0 100px 50px rgba(0,0,0,0.9);
+    pointer-events: none; /* Let clicks pass through */
+    z-index: 400;
+}
+
+/* --- 2. True Neon Glow for Wards --- */
+/* The station dot itself */
+/* The station dot itself */
+/* Tactical Neon Ripple - No white */
+path.pulsing-marker {
+    animation: sensor-pulse 1.8s infinite ease-out;
+    transform-origin: center;
+    /* This creates a "bloom" that makes the color look like light */
+    filter: drop-shadow(0 0 4px currentColor);
+}
+
+@keyframes sensor-pulse {
+    0% {
+        stroke-width: 2px;
+        stroke: currentColor;
+        stroke-opacity: 0.5;
+        /* Start tight at the marker radius */
+        r: 4; 
+    }
+    100% {
+        stroke-width: 1px;
+        stroke: currentColor;
+        stroke-opacity: 0;
+        /* Expand just enough to be a clear "blip" */
+        r: 15; 
+    }
+}
+
+/* Hover effect for Wards */
+.ward-hover-effect {
+    fill-opacity: 0.4 !important;
+    stroke: #ffffff !important;
+    stroke-width: 2px !important;
+    filter: drop-shadow(0 0 15px #ffffff) !important;
+}
+/* --- 4. Glassmorphism for Panels (Optional) --- */
+/* If your panels use IDs like #infoPanel, #searchBox, add this: */
+#infoPanel, #loadOverlay, .leaflet-control {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: rgba(10, 10, 15, 0.85); /* Dark semi-transparent */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+.leaflet-marker-pane, .leaflet-overlay-pane svg {
+    /* Subtle contrast boost for the whole SVG layer */
+    filter: saturate(1.5) brightness(1.2);
+}
+/* Match the map background to your dark theme */
+#map {
+    background-color: #0a0a0a !important; 
+}
+
+/* Ensure the pane where tiles live is also dark */
+.leaflet-tile-pane {
+    background-color: #0a0a0a !important;
+}
+
+/* Optional: Add a subtle fade-in so tiles don't "pop" in aggressively */
+.leaflet-tile {
+    filter: inherit; /* Keeps your dark/grayscale filters */
+    transition: opacity 0.2s linear;
+}
 </style>
 
 <div id="leftWrapper" class="fixed left-6 top-1/2 -translate-y-1/2 z-[1500] flex flex-col gap-4">
-    <div id="leftStatsPanel" class="w-80 bg-slate-900/40 glass p-7 rounded-3xl border border-white/10 shadow-2xl">
+    <div id="leftStatsPanel" class="w-80 bg-slate-900/40 glass p-7 rounded-3xl border border-white/10 shadow-2xl transition-all duration-300">
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
               <span id="liveDot" class="w-3 h-3 live-indicator"></span>
@@ -136,25 +275,11 @@
               .neo-toggle-input:checked + .neo-toggle .neo-status-text::before { content: "ACTIVE"; }
               .neo-toggle-input:not(:checked) + .neo-toggle .neo-status-text::before { content: "WEAR N95"; }
             </style>
-            <div class="neo-toggle-container ml-auto">
-              <input class="neo-toggle-input" id="neo-toggle-govt" type="checkbox" aria-label="Neo toggle" />
-              <label class="neo-toggle" for="neo-toggle-govt" role="switch" aria-checked="false" tabindex="0">
-                <div class="neo-track">
-                  <div class="neo-background-layer"></div>
-                </div>
-                <div class="neo-thumb">
-                  <div class="neo-thumb-ring"></div>
-                  <div class="neo-thumb-core"></div>
-                </div>
-                <div class="neo-status" aria-hidden="true">
-                  <div class="neo-status-text"></div>
-                </div>
-              </label>
-            </div>
+            
         </div>
 
         <div class="flex items-baseline gap-3 mb-2">
-            <h1 id="bigAQI" class="text-7xl font-black leading-none tracking-tighter">---</h1>
+            <h1 id="bigAQI" class="text-7xl font-medium leading-none tracking-tighter">---</h1>
             <span class="text-[10px] text-gray-500 font-bold uppercase">AQI (US)</span>
         </div>
 
@@ -165,14 +290,14 @@
         <div class="space-y-5 mb-8 border-t border-white/5 pt-6">
             <div class="flex justify-between items-end">
                 <div>
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">PM10 Particle</p>
+                    <p id="label-pm10-left" class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">PM10 Particle</p>
                     <p class="text-2xl font-medium text-slate-200"><span id="val-pm10">---</span></p>
                 </div>
                 <span class="text-[10px] text-gray-600 font-bold mb-1">µg/m³</span>
             </div>
             <div class="flex justify-between items-end">
                 <div>
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">PM2.5 Particle</p>
+                    <p id="label-pm25-left" class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">PM2.5 Particle</p>
                     <p class="text-2xl font-medium text-slate-200"><span id="val-pm25">---</span></p>
                 </div>
                 <span class="text-[10px] text-gray-600 font-bold mb-1">µg/m³</span>
@@ -185,14 +310,26 @@
             <div id="aqiNeedle" class="absolute top-[-3px] w-3 h-3 bg-white rounded-full border-2 border-black shadow-[0_0_10px_white]" style="left: 0%;"></div>
         </div>
     </div>
+    <div id="leftSidebarSlifer" class="absolute left-full top-1/2 -translate-y-1/2 w-6 h-12 glass border border-white/10 rounded-r-lg flex items-center justify-center cursor-pointer select-none">&gt;</div>
 </div>
-  <!-- Search bar -->
-  <div class="absolute top-6 left-1/2 -translate-x-1/2 z-[1400] w-[92%] max-w-xl">
-    <div class="relative">
-      <input id="searchInput" type="text" placeholder="Search ward / locality (Enter) — e.g. Rohini, Connaught Place, IGI Airport" class="w-full px-5 py-3 rounded-full glass placeholder-gray-300 focus:outline-none pr-28 text-sm" />
-      <button id="searchBtn" class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-full bg-white/8 hover:bg-white/12 text-sm">Search</button>
-    </div>
+ <!-- Search bar -->
+<div class="absolute top-6 left-1/2 -translate-x-1/2 z-[1400] w-[92%] max-w-xl">
+  <div class="relative">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search ward / locality (Enter) — e.g. Rohini, Connaught Place, IGI Airport"
+      class="neo-search-input w-full px-5 py-3 rounded-full placeholder-gray-300 text-sm pr-28"
+      autocomplete="off"
+    />
+    <button
+      id="searchBtn"
+      class="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-full neo-search-btn text-sm"
+    >
+      Search
+    </button>
   </div>
+</div>
 
   <!-- Map container -->
   <div id="map"></div>
@@ -208,7 +345,7 @@
   <!-- Info side panel (glassmorphism) -->
 <div id="infoPanel"  class="fixed top-0 right-0 h-full w-[92%] max-w-sm bg-slate-900/40 glass p-6 rounded-3xl border border-white/10 translate-x-full transition-transform duration-500 z-[2000] overflow-y-auto overflow-x-hidden shadow-2xl">
   <div class="flex items-center justify-between mb-4 gap-4">
-    <h2 id="locationTitle" class="text-2xl font-semibold neon-text truncate">Location</h2>
+    <h2 id="locationTitle" class="text-3xl font-bold neon-text truncate">Location</h2>
     
     <button onclick="handleLogout()" class="shrink-0 text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-300 flex items-center gap-2 bg-red-400/10 px-3 py-1.5 rounded-full border border-red-400/20 transition-all hover:bg-red-400/20">
       <span>Logout</span>
@@ -217,14 +354,14 @@
   </div>
 
   <p id="locationSub" class="text-xs text-gray-300 mb-4 -mt-3">--</p>
-  <p id="aqiText" class="text-4xl font-black mb-4">AQI: --</p>
+  <p id="aqiText" class="text-4xl font-bold mb-4">AQI: --</p>
 
   <div class="grid grid-cols-2 gap-4 text-sm mb-6">
     <div class="glass p-3 rounded-lg text-center">
-      PM₂.₅ <br><span id="pm25" class="text-xl font-semibold">--</span>
+      <span id="label-pm25-right">PM₂.₅</span> <br><span id="pm25" class="text-xl font-semibold">--</span>
     </div>
     <div class="glass p-3 rounded-lg text-center">
-      PM₁₀ <br><span id="pm10" class="text-xl font-semibold">--</span>
+      <span id="label-pm10-right">PM₁₀</span> <br><span id="pm10" class="text-xl font-semibold">--</span>
     </div>
   </div>
 
@@ -233,7 +370,7 @@
   <div id="uiTabs" class="grid grid-cols-2 gap-3 mb-6">
    <button class="ui-tab-btn" data-key="staySafe">Health Advisory</button>
    <button class="ui-tab-btn" data-key="forecast">AQI Forecast</button>
-   <button class="ui-tab-btn" data-key="actions">Directives For GOVT</button>
+   <button class="ui-tab-btn" data-key="actions">Directives</button>
 
    <button class="ui-tab-btn" data-key="complaint">Grievances</button>
    <button class="ui-tab-btn" data-key="policies">Policy Recommendations</button>
@@ -246,12 +383,7 @@
     </div>
     <div id="ciggsEqBelow" class="text-xs text-gray-300 mt-2"></div>
   </div>
-
-  <div id="sourceBreakdown" class="mt-6 hidden">
-    <h3 class="font-semibold mb-3 text-emerald-400">🔬 Pollution Sources</h3>
-    <div id="sourceList" class="space-y-2"></div>
-  </div>
-
+ 
   <!-- 🔹 Close Button -->
   <div class="mt-6">
     <button id="closePanel" class="mt-4 w-full px-4 py-2 rounded-full bg-white/8 hover:bg-white/12 text-sm">
@@ -297,13 +429,16 @@ function handleLogout() {
 
 
 const map = L.map('map', { 
-    preferCanvas: true,
+    preferCanvas: false,
     zoomControl: false, 
+     // --- ZOOM LIMITS ---
+    minZoom: 11,       // Prevents zooming out too far
     // Smoothness Settings
     zoomAnimation: true,
     zoomAnimationThreshold: 10,
     // Speed Settings
-    zoomSnap: 0,                // Set to 0 for maximum fluid responsiveness
+    zoomSnap: 0.5,                // Set to 0 for maximum fluid responsiveness
+    zoomDelta: 0.5,   
     wheelPxPerZoomLevel: 10,    // Lower = Faster zoom (was 120)
     wheelDelta: 1.5,            // Higher = more zoom per scroll click
     inertia: true,
@@ -312,8 +447,26 @@ const map = L.map('map', {
 
 // Basemap
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & CARTO'
+  attribution: '&copy; OpenStreetMap & CARTO',
+  // --- PERFORMANCE TWEAKS ---
+  keepBuffer: 4,        // Keeps 4 rows of tiles off-screen in memory
+  updateWhenIdle: false, // Load tiles during zooming, not just after
+  updateWhenZooming: true,
+  updateInterval: 100,   // Refresh rate for tile loading (ms)
+  className: 'custom-tiles'
 }).addTo(map);
+// Define the corners of the "Delhi Box" (South-West and North-East)
+const delhiBounds = L.latLngBounds(
+    L.latLng(28.2, 76.7), // Bottom Left
+    L.latLng(28.9, 77.5)  // Top Right
+);
+
+map.setMaxBounds(delhiBounds);
+
+// This bounces the user back if they try to drag outside the box
+map.on('drag', function() {
+    map.panInsideBounds(delhiBounds, { animate: false });
+});
 
 // UI Elements
 const loadOverlay = document.getElementById('loadOverlay');
@@ -341,11 +494,13 @@ function hideLoader() {
 let wardsGeo = null;
 let wardsLayer = null;
 let selectedHighlight = null;
+let glowLayer = null;         // <-- NEW: neon glow layer reference
 let tempSearchMarker = null;
 let aqiStations = [];
 let latestWardAQI = null; 
 let latestWardAI = null;
 const stationLayer = L.layerGroup().addTo(map);
+let lastWardUIData = null;
 
 
 function pointInsideFeature(pt, feature) {
@@ -407,6 +562,17 @@ function getAQILabel(aqi) {
   if (aqi > 50) return 'Satisfactory';
   return 'Good';
 }
+function getNeonAQIColor(aqi) {
+  if (aqi == null) return '#6b7280';   // neutral gray
+
+  if (aqi <= 50)  return '#22ff66';   // neon green (matches #16a34a)
+  if (aqi <= 100) return '#fff04d';   // neon yellow (matches #eab308)
+  if (aqi <= 200) return '#ff9f1a';   // neon orange (matches #f97316)
+  if (aqi <= 300) return '#ff4d4d';   // neon red (matches #ef4444)
+  if (aqi <= 400) return '#b45309';   // neon brownish-orange (matches #7c2d12)
+  return '#7f1d1d';                   // neon maroon (matches #5b0219)
+}
+
 
 function advisoryForAQI(aqi) {
   if (aqi == null) return 'No AQI data available.';
@@ -537,7 +703,7 @@ function normalizeToStationPoints(payload) {
 function estimatePM25(aqi) {
     // Basic linear estimation of PM2.5 based on AQI breakpoints
     if (aqi <= 50) return (aqi / 50) * 12;
-    if (aqi <= 100) return 12 + ((aqi - 50) / 50) * 23;0
+    if (aqi <= 100) return 12 + ((aqi - 50) / 50) * 23;
     if (aqi <= 200) return 35 + ((aqi - 100) / 100) * 115;
     return (aqi / 500) * 250; // Rough estimate for high values
 }
@@ -621,13 +787,9 @@ async function integrateLiveAQIntoWards() {
       }
     });
 
-    // 4. Color the map
-    if (wardsLayer) {
-      wardsLayer.eachLayer(layer => {
-        const a = layer.feature.properties.aqi;
-        layer.setStyle({ fillColor: getAQIColor(a), fillOpacity: 0.4 });
-      });
-    }
+   // 4. Color the map — update thin edge + glow using per-feature AQI
+updateWardStyles();
+
     // Render initial trend if available (uses interpolated AQs saved in features)
     if (typeof window.renderHistoryTrend === 'function' && Array.isArray(payload?.history_24h)) {
       window.renderHistoryTrend(payload.history_24h);
@@ -638,6 +800,35 @@ async function integrateLiveAQIntoWards() {
     liveAQStatusBar.innerText = 'Live fetch failed.';
   } finally {
     hideLoader();
+  }
+}
+function updateWardStyles() {
+  if (!wardsGeo) return;
+
+  // Update glowLayer paint
+  if (glowLayer) {
+    glowLayer.eachLayer(layer => {
+      const aqi = layer.feature.properties.aqi;
+      const c = getNeonAQIColor(aqi);
+      layer.setStyle({ color: c });
+      // If using SVG `currentColor` in CSS, set style color
+      // already done by setStyle above
+    });
+  }
+
+  // Update thin boundary + fill
+  if (wardsLayer) {
+    wardsLayer.eachLayer(layer => {
+      const aqi = layer.feature.properties.aqi;
+      const c = getNeonAQIColor(aqi);
+      layer.setStyle({
+        color: c,
+        fillColor: c,
+        weight: 0.8,
+        opacity: 1,
+        fillOpacity: 0.06
+      });
+    });
   }
 }
 /* ================== SEARCH & INTERACTION ================== */
@@ -664,8 +855,7 @@ async function integrateLiveAQIntoWards() {
     
     // Set global AQI immediately for the tabs
     latestWardAQI = feature.properties.aqi || 0;
-    latestWardAI = null; // Clear previous ward's AI data
-    window.latestCigarettes = null; // Clear previous data
+    
 
     if (typeof locationTitle !== 'undefined') locationTitle.innerText = wardName;
     if (typeof locationSub !== 'undefined') locationSub.innerText = `Ward Number: ${wardId} `;
@@ -673,8 +863,8 @@ async function integrateLiveAQIntoWards() {
 
     const localData = {
         aqi: latestWardAQI,
-        pm25: feature.properties.pm25 || 0,
-        pm10: feature.properties.pm10 || 0,
+        pm25: (feature.properties.pm25 != null ? feature.properties.pm25 : estimatePM25(latestWardAQI)),
+        pm10: (feature.properties.pm10 != null ? feature.properties.pm10 : estimatePM10(latestWardAQI)),
         analysis: null
     };
 
@@ -685,11 +875,13 @@ async function integrateLiveAQIntoWards() {
     if (wardId) {
         try {
             const baseUrl = REMOTE_SERVER_URL.replace(/\/$/, '');
+            console.debug('ward-analysis fetch', { wardId, url: `${baseUrl}/api/ward-analysis/${wardId}` });
             const response = await fetch(`${baseUrl}/api/ward-analysis/${wardId}`, {
                 headers: { 'ngrok-skip-browser-warning': 'true' }
             });
 
             const data = await response.json();
+            console.debug('ward-analysis payload', data);
 
   if (data.success) {
                 // ✅ CORRECT PLACE TO SAVE DATA GLOBALLY
@@ -718,13 +910,17 @@ async function integrateLiveAQIntoWards() {
     }
 }
 function updateWardUI(data) {
-    // 1. Extract Values
-    const aqi = data.current_aqi || data.aqi || 0;
-    const pm25 = data.pm25 || (data.raw_pollutants ? data.raw_pollutants.pm2_5 : 0);
-    const pm10 = data.pm10 || (data.raw_pollutants ? data.raw_pollutants.pm10 : 0);
+    const prev = lastWardUIData || {};
+    const aqi = (data.current_aqi ?? data.aqi ?? prev.current_aqi ?? prev.aqi ?? 0);
+    let pm25 = (data.pm25 ?? (data.raw_pollutants ? data.raw_pollutants.pm2_5 : undefined));
+    if (pm25 == null) pm25 = (prev.pm25 ?? (prev.raw_pollutants ? prev.raw_pollutants.pm2_5 : 0));
+    let pm10 = (data.pm10 ?? (data.raw_pollutants ? data.raw_pollutants.pm10 : undefined));
+    if (pm10 == null) pm10 = (prev.pm10 ?? (prev.raw_pollutants ? prev.raw_pollutants.pm10 : 0));
     const aiAnalysis = data.analysis || null;
-    const cigarettes = data.cigarettes_count || (aqi / 22).toFixed(1);
-
+    const cigarettes = (data.cigarettes_count != null) ? data.cigarettes_count : (pm25 > 0 ? (pm25 / 22).toFixed(1) : '--');
+    window.latestCigarettes = cigarettes;
+    lastWardUIData = { ...prev, ...data, pm25, pm10, cigarettes_count: cigarettes };
+    console.debug('updateWardUI', { aqi, pm25, pm10, cigarettes });
 
     // 2. Visual Colors/Labels
     const color = getAQIColor(aqi);
@@ -733,7 +929,7 @@ function updateWardUI(data) {
     // --- LEFT DASHBOARD UPDATES ---
     const bigAQI = document.getElementById('bigAQI');
     if (bigAQI) {
-        bigAQI.innerText = aqi > 0 ? aqi : "---";
+        bigAQI.innerText = aqi > 0 ? Math.round(aqi) : "---";
         bigAQI.style.color = color;
     }
 
@@ -753,7 +949,7 @@ function updateWardUI(data) {
 
     // --- RIGHT INFO PANEL UPDATES ---
     if (typeof aqiText !== 'undefined') {
-        aqiText.innerText = `AQI: ${aqi > 0 ? aqi : '--'} - ${label}`;
+        aqiText.innerText = `AQI: ${aqi > 0 ? Math.round(aqi) : '--'} - ${label}`;
         aqiText.style.color = color;
     }
 
@@ -762,6 +958,15 @@ function updateWardUI(data) {
     const pm10Val = pm10 > 0 ? Number(pm10).toFixed(1) : '--';
     ['val-pm25', 'pm25'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = pm25Val; });
     ['val-pm10', 'pm10'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = pm10Val; });
+
+    const leftPM25Label = document.getElementById('label-pm25-left');
+    const leftPM10Label = document.getElementById('label-pm10-left');
+    const rightPM25Label = document.getElementById('label-pm25-right');
+    const rightPM10Label = document.getElementById('label-pm10-right');
+    if (leftPM25Label) leftPM25Label.innerText = 'PM2.5 Particle';
+    if (leftPM10Label) leftPM10Label.innerText = 'PM10 Particle';
+    if (rightPM25Label) rightPM25Label.innerText = 'PM₂.₅';
+    if (rightPM10Label) rightPM10Label.innerText = 'PM₁₀';
 
     // --- ADVISORY & CIGARETTES LOGIC ---
     // Note: Sidebar text advisory removed as per request. Only shown in popup now.
@@ -781,28 +986,6 @@ function updateWardUI(data) {
         cigDiv.style.border = '1px solid ' + (color + '44');
         cigDiv.style.boxShadow = '0 0 10px ' + (color + '22');
     }
-// --- NEW: POLLUTION SOURCE BARS ---
-const sourceContainer = document.getElementById('sourceBreakdown');
-const sourceListEl = document.getElementById('sourceList');
-
-// data.analysis contains the JSON object from your backend
-if (latestWardAI && latestWardAI.source_breakdown) {
-        sourceContainer.classList.remove('hidden');
-        sourceListEl.innerHTML = latestWardAI.source_breakdown.map(item => `
-            <div class="space-y-1 mt-4">
-                <div class="flex justify-between text-[10px] uppercase font-bold tracking-widest text-slate-400">
-                    <span>${item.source} (${item.major_pollutant})</span>
-                    <span class="text-emerald-400 font-mono">${item.contribution_percent}%</span>
-                </div>
-                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                    <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-1000" 
-                         style="width: ${item.contribution_percent}%"></div>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        sourceContainer.classList.add('hidden');
-    }
     // --- TREND GRAPH LOGIC ---
     if (Array.isArray(data.history_24h) && typeof window.renderHistoryTrend === 'function') {
         // Timeout ensures the side panel is visible so the SVG can calculate its width
@@ -811,6 +994,13 @@ if (latestWardAI && latestWardAI.source_breakdown) {
         }, 200);
     }
 }
+window.getCigaretteCounts = function() {
+  const d = window.lastWardUIData || {};
+  let pm25v = d.pm25 ?? (d.raw_pollutants ? d.raw_pollutants.pm2_5 : undefined);
+  if (pm25v == null) pm25v = 0;
+  const normal = window.latestCigarettes != null ? window.latestCigarettes : (pm25v > 0 ? (pm25v / 22).toFixed(1) : '--');
+  return { normal };
+};
 // --- TAB CLICK HANDLER & DYNAMIC POPUP ---
 document.querySelectorAll('.ui-tab-btn').forEach(btn => {
   btn.onclick = () => {
@@ -826,26 +1016,45 @@ document.querySelectorAll('.ui-tab-btn').forEach(btn => {
 
     // Check if we have the AI data from the backend
     if (!latestWardAI) {
+      const d = window.lastWardUIData || {};
+      const counts0 = window.getCigaretteCounts();
+      const color = getAQIColor(latestWardAQI);
+      const label = getAQILabel(latestWardAQI);
       body.innerHTML = `
-        <div class="flex flex-col items-center justify-center h-full text-slate-400 italic">
-          <p>No deep insights available for this ward yet.</p>
-          <p class="text-xs mt-2">Select a ward on the map to load data.</p>
+        <div class="space-y-4 text-slate-300">
+          <div class="p-4 rounded-xl" style="background-color:${color}22;border:1px solid ${color}44;">
+            <p class="text-emerald-400 font-bold mb-1">⚠️ Cigarette Equivalent</p>
+            <p class="text-2xl font-bold text-white">Breathing this air is like smoking <strong>${counts0.normal}</strong> cigarettes today.</p>
+          </div>
+          <div class="space-y-2">
+            <p class="font-semibold text-emerald-400">Advisory for ${label} AQI:</p>
+            <div class="text-sm leading-relaxed whitespace-pre-line" style="color:${color}">${advisoryForAQI(latestWardAQI)}</div>
+          </div>
         </div>`;
-    } else {
-      // Map the backend JSON fields to the UI Tabs
-      switch(key) {
-        case 'staySafe':
-          body.innerHTML = `
-            <div class="space-y-4">
-              <div class="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
-                <h4 class="text-emerald-400 font-bold uppercase text-xs mb-2">Health Summary</h4>
-                <p class="text-slate-200 leading-relaxed">${latestWardAI.impact_summary}</p>
-              </div>
-              <div class="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
-                <h4 class="text-blue-400 font-bold uppercase text-xs mb-2">Citizen Mitigation</h4>
-                <p class="text-slate-200 leading-relaxed">${latestWardAI.citizen_mitigation}</p>
-              </div>
-            </div>`;
+  } else {
+    // Map the backend JSON fields to the UI Tabs
+    switch(key) {
+      case 'staySafe':
+          {
+            const counts = window.getCigaretteCounts();
+            const color = getAQIColor(latestWardAQI);
+            const label = getAQILabel(latestWardAQI);
+            body.innerHTML = `
+              <div class="space-y-4">
+                <div class="p-4 rounded-xl" style="background-color:${color}22;border:1px solid ${color}44;">
+                  <p class="text-emerald-400 font-bold mb-1">Cigarette Equivalent</p>
+                  <p class="text-2xl font-bold text-white"><strong>${counts.normal}</strong> cigarettes/day</p>
+                </div>
+                <div class="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20">
+                  <h4 class="text-blue-400 font-bold uppercase text-xs mb-2">Citizen Mitigation</h4>
+                  <p class="text-slate-200 leading-relaxed">${latestWardAI.citizen_mitigation}</p>
+                </div>
+                <div class="p-4 rounded-xl" style="background-color:${color}22;border:1px solid ${color}44;">
+                  <p class="font-semibold text-emerald-400">Standard Advisory (${label} AQI):</p>
+                  <div class="text-sm leading-relaxed whitespace-pre-line" style="color:${color}">${advisoryForAQI(latestWardAQI)}</div>
+                </div>
+              </div>`;
+          }
           break;
 
         case 'forecast':
@@ -1016,7 +1225,7 @@ map.on('click', (e) => {
     const a = res ? res.aqi : null;
     aqiText.innerText = a ? `AQI: ${a} (Interpolated)` : 'AQI: --';
     aqiText.style.color = getAQIColor(a);
-    advisoryEl.innerText = advisoryForAQI(a);
+    if (advisoryEl) advisoryEl.innerText = advisoryForAQI(a);
     infoPanel.classList.remove('translate-x-full');
   }
 });
@@ -1107,15 +1316,62 @@ async function loadWardShapes() {
 
 function renderWardsGeoJSON(gj) {
   wardsGeo = gj;
+  // Ensure properties exist
   wardsGeo.features.forEach((f, i) => {
     if (!f.properties) f.properties = {};
     f.properties.name = f.properties.name || f.properties.WARD_NAME || `Ward ${i+1}`;
+    if (typeof f.properties.aqi === 'undefined') f.properties.aqi = null;
   });
 
+  // Cleanup
+  if (glowLayer) map.removeLayer(glowLayer);
+  if (wardsLayer) map.removeLayer(wardsLayer);
+
+  // 1. THE GLOW LAYER (Back) - Uses CSS SVG filters for true neon
+  glowLayer = L.geoJSON(wardsGeo, {
+    style: feature => {
+      const c = getNeonAQIColor(feature.properties.aqi);
+      return {
+        color: c,
+        weight: 0.0001,           // Reduced weight, let CSS handle the spread
+        opacity: 0.1,
+        fill: false,         // No fill for glow layer, just edges
+        className: 'neon-edge' // <--- CSS CLASS FOR GLOW
+      };
+    }
+  }).addTo(map);
+
+ // 2. THE INTERACTIVE LAYER (Front)
   wardsLayer = L.geoJSON(wardsGeo, {
-    style: { color: '#94a3b8', weight: 1, opacity: 0.5, fillColor: '#374151', fillOpacity: 0.1 },
+    style: feature => {
+      const c = getNeonAQIColor(feature.properties.aqi);
+      return {
+        color: c,
+        weight: 0.5,         // Very thin crisp line
+        opacity: 1,
+        fillColor: c,
+        fillOpacity: 0.15    // Slightly higher base opacity for richness
+      };
+    },
     onEachFeature: (f, l) => {
-      l.on('click', (e) => { L.DomEvent.stopPropagation(e); onWardSelected(f, l); });
+      // HOVER EFFECTS
+      l.on('mouseover', () => {
+        l.setStyle({ 
+          weight: 2, 
+          color: '#fff',     // Highlight border white
+          fillOpacity: 0.5   // Brighten fill
+        });
+        l.bringToFront();    // Bring highlighted ward to top
+      });
+
+      l.on('mouseout', () => {
+        wardsLayer.resetStyle(l); // Reset to original color
+      });
+
+      l.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+        onWardSelected(f, l);
+      });
     }
   }).addTo(map);
 }
@@ -1144,6 +1400,38 @@ const citizenFloatTitle = document.getElementById('citizenFloatTitle');
 const citizenFloatBody = document.getElementById('citizenFloatBody');
 const citizenFloatClose = document.getElementById('citizenFloatClose');
 
+function renderSourceMitigations(ai, mode, color) {
+  try {
+    const arr = Array.isArray(ai?.source_breakdown) ? ai.source_breakdown : [];
+    const html = arr.map(s => {
+      const text = mode === 'govt'
+        ? (typeof s.govt_mitigation === 'string' && s.govt_mitigation.trim() ? s.govt_mitigation : '')
+        : (typeof s.citizen_mitigation === 'string' && s.citizen_mitigation.trim()
+            ? s.citizen_mitigation
+            : (typeof s.actionable_mitigation === 'string' ? s.actionable_mitigation : ''));
+      if (!text) return '';
+      const contrib = (s.contribution_percent != null)
+        ? `<span class="px-2 py-0.5 rounded bg-white/10 border border-white/10">Share: ${s.contribution_percent}%</span>` : '';
+      const pollut = s.major_pollutant
+        ? `<span class="px-2 py-0.5 rounded bg-white/10 border border-white/10">Major: ${s.major_pollutant}</span>` : '';
+      const impact = s.impact_if_removed
+        ? `<span class="px-2 py-0.5 rounded bg-white/10 border border-white/10">Impact: ${s.impact_if_removed}</span>` : '';
+      return `
+        <div class="p-4 rounded-xl" style="background-color:${color}22;border:1px solid ${color}44;">
+          <div class="flex justify-between items-start mb-1">
+            <div class="text-sm font-semibold text-white/90">${s.source || 'Source'}</div>
+          </div>
+          <div class="text-sm text-slate-200 leading-relaxed">${text}</div>
+          <div class="mt-2 flex flex-wrap gap-2 text-[10px] text-slate-300">
+            ${contrib}${pollut}${impact}
+          </div>
+        </div>`;
+    }).filter(Boolean).join('');
+    return html || '<div class="text-sm text-slate-300">No source-wise data available.</div>';
+  } catch (e) {
+    return '<div class="text-sm text-red-300">Failed to render data.</div>';
+  }
+}
 // 2. Define Content for each button
 const tabData = {
   staySafe: {
@@ -1178,7 +1466,7 @@ const tabData = {
       </div>`
   },
   actions: {
-    title: "Directives For GOVT",
+    title: "Suggested Directives ",
     body: `
       <div class="space-y-3 text-slate-300">
         <p>Citizens are requested to adhere to the following measures to assist in pollution mitigation:</p>
@@ -1245,91 +1533,116 @@ uiTabBtns.forEach(btn => {
       title = 'Health Advisory';
       const a = latestWardAQI;
       const ai = latestWardAI;
-      const cigs = window.latestCigarettes || (a / 22).toFixed(1);
+      const counts = window.getCigaretteCounts();
       const color = getAQIColor(a);
       
       if (ai && !ai.error) {
         body = `<div class="space-y-4 text-slate-300">
             <div class="p-4 rounded-xl" style="background-color:${color}22;border:1px solid ${color}44;">
               <p class="text-emerald-400 font-bold mb-1">⚠️ Cigarette Equivalent</p>
-              <p class="text-2xl font-bold text-white">Breathing this air is like smoking <strong>${cigs}</strong> cigarettes today.</p>
+              <p class="text-2xl font-bold text-white">Breathing this air is like smoking <strong>${counts.normal}</strong> cigarettes today.</p>
             </div>
             <div class="space-y-2">
-              <p class="font-semibold text-emerald-400">Health Impact Summary:</p>
-              <p class="text-sm leading-relaxed" style="color:${color}">${ai.impact_summary}</p>
+              <p class="font-semibold text-emerald-400">Standard Advisory (${getAQILabel(a)} AQI):</p>
+              <div class="text-sm leading-relaxed whitespace-pre-line" style="color:${color}">${advisoryForAQI(a)}</div>
+            </div>
+          </div>`;
+      } else {
+        const label = getAQILabel(a);
+        const advice = advisoryForAQI(a);
+        body = `<div class="space-y-4 text-slate-300">
+            <div class="p-4 rounded-xl" style="background-color:${color}22;border:1px solid ${color}44;">
+              <p class="text-emerald-400 font-bold mb-1">⚠️ Cigarette Equivalent</p>
+              <p class="text-2xl font-bold text-white"><strong>${counts.normal}</strong> cigarettes/day</p>
+            </div>
+            <div class="space-y-2">
+              <p class="font-semibold text-emerald-400">Advisory for ${label} AQI:</p>
+              <div class="text-sm leading-relaxed whitespace-pre-line" style="color:${color}">${advice}</div>
             </div>
           </div>`;
       }
     } else if (key === 'policies') {
-      title = 'Policy Recommendations (Govt View)';
-      body = `<div class="glass p-3 rounded-xl border border-white/10 animate-pulse text-sm text-slate-300">Loading policy recommendations...</div>`;
-      const wardId = window.latestWardId;
-      const baseUrl = REMOTE_SERVER_URL.replace(/\/$/, '');
-      setTimeout(async () => {
-        try {
-          const t0 = performance.now();
-          const r = await fetch(`${baseUrl}/api/ward-analysis/${wardId}`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
-          const ms = Math.round(performance.now() - t0);
-          const json = await r.json();
-          const pr = json && json.analysis && json.analysis.policy_recommendations;
-          let html = '';
-          if (Array.isArray(pr)) {
-            html = pr.map(rec => `
-              <div class="glass p-3 rounded-xl border border-white/10">
-                <h3 class="text-base font-semibold text-white/90">${rec.name || rec.title || 'Recommendation'}</h3>
-                ${rec.description ? `<p class="text-xs text-slate-300 mt-2">${rec.description}</p>` : ''}
+      title = 'Personalized Policy Recommendations';
+      const a = latestWardAQI;
+      const color = getAQIColor(a);
+      const renderCards = (arr, color) => {
+        const items = Array.isArray(arr) ? arr : [];
+        if (!items.length) return '<div class="text-sm text-slate-300">No recommendations available.</div>';
+        return items.map(rec => {
+          const name = rec.policy_name || rec.name || rec.title || 'Recommendation';
+          const desc = rec.description || rec.summary || '';
+          const eff = rec.estimated_effects || rec.effects || {};
+          const p = typeof eff.pollution === 'string' ? eff.pollution : '';
+          const s = typeof eff.socio_economic === 'string' ? eff.socio_economic : '';
+          const w = typeof eff.workforce_productivity === 'string' ? eff.workforce_productivity : '';
+          return `
+            <div class="p-4 rounded-xl mb-3" style="background-color:${color}22;border:1px solid ${color}44;">
+              <div class="text-lg font-semibold text-white/90 mb-2">${name}</div>
+              ${desc ? `<div class="text-sm text-slate-200 leading-relaxed mb-3">${desc}</div>` : ''}
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div class="glass p-3 rounded border border-white/10">
+                  <div class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Pollution</div>
+                  <div class="text-sm text-slate-200">${p || '—'}</div>
+                </div>
+                <div class="glass p-3 rounded border border-white/10">
+                  <div class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Socio-economic</div>
+                  <div class="text-sm text-slate-200">${s || '—'}</div>
+                </div>
+                <div class="glass p-3 rounded border border-white/10">
+                  <div class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Workforce</div>
+                  <div class="text-sm text-slate-200">${w || '—'}</div>
+                </div>
               </div>
-            `).join('');
-          } else if (typeof pr === 'string' && pr.trim()) {
-            html = `
-              <div class="glass p-3 rounded-xl border border-white/10">
-                <p class="text-sm text-slate-200">${pr}</p>
-              </div>
-            `;
-          } else {
-            html = `<div class="text-slate-300">No recommendations available.</div>`;
+            </div>`;
+        }).join('');
+      };
+      if (latestWardAI && !latestWardAI.error) {
+        const cards = renderCards(latestWardAI.policy_recommendations, color);
+        body = `<div class="space-y-2">${cards}</div>`;
+      } else {
+        const wardId = window.latestWardId;
+        const baseUrl = REMOTE_SERVER_URL.replace(/\/$/, '');
+        body = `<div class="glass p-3 rounded-xl border border-white/10 animate-pulse text-sm text-slate-300">Loading policy recommendations...</div>`;
+        setTimeout(async () => {
+          try {
+            const r = await fetch(`${baseUrl}/api/ward-analysis/${wardId}`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+            const json = await r.json();
+            latestWardAI = json && json.analysis ? json.analysis : null;
+            const cards = renderCards((latestWardAI && latestWardAI.policy_recommendations) || [], color);
+            citizenFloatBody.innerHTML = `<div class="space-y-2">${cards}</div>`;
+          } catch (e) {
+            citizenFloatBody.innerHTML = `<div class="glass p-3 rounded-xl border border-red-400/30 text-sm text-red-300">Failed to load policy recommendations.</div>`;
           }
-          html += `<div class="mt-3 text-xs text-slate-500">Fetched in ${ms} ms</div>`;
-          citizenFloatBody.innerHTML = html;
-        } catch (e) {
-          citizenFloatBody.innerHTML = `<div class="glass p-3 rounded-xl border border-red-400/30 text-sm text-red-300">Failed to load policy recommendations.</div>`;
-        }
-      }, 0);
+        }, 0);
+      }
     } else if (key === 'actions') {
       title = 'Government Directives';
-      const wardId = window.latestWardId;
-      const baseUrl = REMOTE_SERVER_URL.replace(/\/$/, '');
-      body = `<div class="glass p-3 rounded-xl border border-white/10 animate-pulse text-sm text-slate-300">Loading directives...</div>`;
-      setTimeout(async () => {
-        try {
-          const t0 = performance.now();
-          const r = await fetch(`${baseUrl}/api/ward-analysis/${wardId}`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
-          if (!r.ok) throw new Error('http ' + r.status);
-          const json = await r.json();
-          const gm = json && json.analysis && json.analysis.govt_mitigation;
-          let html = '';
-          if (typeof gm === 'string' && gm.trim()) {
-            html = `<div class="glass p-3 rounded-xl border border-white/10"><p class="text-sm leading-relaxed text-slate-200">${gm}</p></div>`;
-          } else if (Array.isArray(gm) && gm.length) {
-            html = gm.map(x => {
-              if (typeof x === 'string') {
-                return `<div class="glass p-3 rounded-xl border border-white/10"><p class="text-sm text-slate-200">${x}</p></div>`;
-              } else if (x && typeof x === 'object') {
-                const vals = Object.values(x).filter(v => typeof v === 'string' && v.trim()).map(v => `<div class="text-xs text-slate-300">${v}</div>`).join('');
-                return `<div class="glass p-3 rounded-xl border border-white/10">${vals}</div>`;
-              } else {
-                return '';
-              }
-            }).join('');
-          } else {
-            html = `<div class="text-slate-300 text-sm">No government mitigation data available.</div>`;
+      const a = latestWardAQI;
+      const color = getAQIColor(a);
+      if (latestWardAI && !latestWardAI.error) {
+        body = `
+          <div class="space-y-3">
+            ${renderSourceMitigations(latestWardAI, 'govt', color)}
+          </div>`;
+      } else {
+        const wardId = window.latestWardId;
+        const baseUrl = REMOTE_SERVER_URL.replace(/\/$/, '');
+        body = `<div class="glass p-3 rounded-xl border border-white/10 animate-pulse text-sm text-slate-300">Loading directives...</div>`;
+        setTimeout(async () => {
+          try {
+            const r = await fetch(`${baseUrl}/api/ward-analysis/${wardId}`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+            const json = await r.json();
+            latestWardAI = json && json.analysis ? json.analysis : null;
+            const html = `
+              <div class="space-y-3">
+                ${renderSourceMitigations(latestWardAI || {}, 'govt', color)}
+              </div>`;
+            citizenFloatBody.innerHTML = html;
+          } catch (e) {
+            citizenFloatBody.innerHTML = `<div class="glass p-3 rounded-xl border border-red-400/30 text-sm text-red-300">Failed to load directives.</div>`;
           }
-          html += `<div class="mt-2 text-xs text-slate-500">Fetched in ${Math.round(performance.now()-t0)} ms</div>`;
-          citizenFloatBody.innerHTML = html;
-        } catch (e) {
-          citizenFloatBody.innerHTML = `<div class="glass p-3 rounded-xl border border-red-400/30 text-sm text-red-300">Failed to load directives.</div>`;
-        }
-      }, 0);
+        }, 0);
+      }
     } else if (key === 'complaint') {
       title = 'Grievances (Govt View)';
       body = `<div class="space-y-4">
@@ -1376,6 +1689,12 @@ uiTabBtns.forEach(btn => {
 
     citizenFloatTitle.innerHTML = title;
     citizenFloatBody.innerHTML = body;
+    if (key === 'staySafe') {
+      try {
+        citizenFloatBody.querySelectorAll('.text-sm').forEach(el => { el.classList.remove('text-sm'); el.classList.add('text-base'); });
+        citizenFloatBody.querySelectorAll('.p-4').forEach(el => { el.classList.remove('p-4'); el.classList.add('p-5'); });
+      } catch {}
+    }
     citizenFloat.classList.remove('hidden');
     setTimeout(() => { citizenFloat.classList.remove('opacity-0', 'scale-95'); }, 10);
 
@@ -1696,18 +2015,23 @@ async function deleteMCDAction(id) {
     document.querySelector('[data-key="govTask"]').click();
   } catch (e) { alert("Delete failed."); }
 }
-try {
-  const govtToggle = document.getElementById('neo-toggle-govt');
-  window.onSafetyToggleChanged = function(active) {
-    document.body.dataset.safety = active ? '1' : '0';
-  };
-  if (govtToggle && !govtToggle.dataset.bound) {
-    govtToggle.dataset.bound = '1';
-    govtToggle.addEventListener('change', () => {
-      window.onSafetyToggleChanged(!!govtToggle.checked);
-    });
-  }
-} catch {}
+const leftSidebarSlifer = document.getElementById('leftSidebarSlifer');
+const leftStatsPanelEl = document.getElementById('leftStatsPanel');
+if (leftSidebarSlifer && leftStatsPanelEl) {
+  let expanded = false;
+  leftSidebarSlifer.addEventListener('click', () => {
+    expanded = !expanded;
+    if (expanded) {
+      leftStatsPanelEl.classList.add('w-96');
+      leftStatsPanelEl.classList.remove('w-80');
+      leftSidebarSlifer.textContent = '<';
+    } else {
+      leftStatsPanelEl.classList.add('w-80');
+      leftStatsPanelEl.classList.remove('w-96');
+      leftSidebarSlifer.textContent = '>';
+    }
+  });
+}
 </script>
 </body>
 </html>
